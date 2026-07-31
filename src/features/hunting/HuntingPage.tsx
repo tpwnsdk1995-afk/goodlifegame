@@ -63,7 +63,11 @@ export function HuntingPage() {
         setErrorMessage(err instanceof Error ? err.message : '알 수 없는 오류가 발생했어요.');
         return;
       }
-      setTimeout(() => setPhase('idle'), 900);
+      setTimeout(() => {
+        setPhase('idle');
+        setActiveEnemy(null);
+        setLastOutcome(null);
+      }, 900);
     }, 350);
   };
 

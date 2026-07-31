@@ -29,6 +29,8 @@ export function AppShell({ activeTab, onTabChange, children }: PropsWithChildren
           <button
             key={tab.key}
             onClick={() => onTabChange(tab.key)}
+            aria-label={tab.label}
+            aria-current={activeTab === tab.key ? 'page' : undefined}
             className={`flex-1 py-3 flex flex-col items-center gap-0.5 text-xs ${
               activeTab === tab.key ? 'text-amber-400' : 'text-slate-400'
             }`}
