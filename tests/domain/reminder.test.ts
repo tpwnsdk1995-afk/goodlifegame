@@ -70,6 +70,17 @@ describe('isReminderDue', () => {
     expect(isReminderDue(quest, new Date('2026-07-31T20:40:00'), TODAY)).toBe(true);
   });
 
+  it('is false for a WEEKDAYS quest on a day it is not scheduled', () => {
+    // 2026-07-31 is a Friday (day 5); this quest only runs Mon/Wed (1, 3).
+    const quest = makeQuest({ recurrence: { type: 'WEEKDAYS', days: [1, 3] } });
+    expect(isReminderDue(quest, AT_TIME, TODAY)).toBe(false);
+  });
+
+  it('is true for a WEEKDAYS quest on a day it is scheduled', () => {
+    const quest = makeQuest({ recurrence: { type: 'WEEKDAYS', days: [5] } });
+    expect(isReminderDue(quest, AT_TIME, TODAY)).toBe(true);
+  });
+
   it('ignores a stale count/timestamp from a previous day', () => {
     const quest = makeQuest({
       reminderDate: '2026-07-30',

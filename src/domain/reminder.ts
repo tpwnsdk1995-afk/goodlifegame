@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { isScheduledOn } from './streak';
 import type { Quest } from './types';
 
 export const MAX_REMINDERS_PER_DAY = 3;
@@ -15,6 +16,7 @@ function countToday(quest: Quest, todayKey: string): number {
 /** True if `quest` should fire a reminder right now: due time reached, not yet completed today, under the daily cap, and enough time since the last reminder. */
 export function isReminderDue(quest: Quest, now: Date, todayKey: string): boolean {
   if (!quest.active || !quest.reminderTime) return false;
+  if (!isScheduledOn(quest.recurrence, now)) return false;
   if (quest.lastCompletedDate === todayKey) return false;
   if (countToday(quest, todayKey) >= MAX_REMINDERS_PER_DAY) return false;
   if (currentTimeKey(now) < quest.reminderTime) return false;

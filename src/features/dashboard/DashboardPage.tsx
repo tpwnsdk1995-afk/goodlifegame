@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useCharacterStore } from '../../store/characterStore';
 import { useQuestStore } from '../../store/questStore';
 import { completeQuest, getAvailableHuntingAttempts } from '../../store/gameActions';
-import { toDateKey } from '../../domain/streak';
+import { isScheduledOn, toDateKey } from '../../domain/streak';
 import { DOMAINS, DOMAIN_LABEL } from '../../domain/types';
 import { averageDomainLevel } from '../../domain/stats';
 import { pickCoachMessage } from '../../domain/coach';
@@ -17,7 +17,8 @@ export function DashboardPage() {
   const [attempts, setAttempts] = useState(0);
   const [celebration, setCelebration] = useState<{ id: number; text: string } | null>(null);
   const [dismissedReminderCounts, setDismissedReminderCounts] = useState<Record<string, number>>({});
-  const todayKey = toDateKey(new Date());
+  const today = new Date();
+  const todayKey = toDateKey(today);
 
   const refreshAttempts = () => {
     getAvailableHuntingAttempts().then(setAttempts);
@@ -43,8 +44,9 @@ export function DashboardPage() {
   };
 
   const activeQuests = quests.filter((q) => q.active);
+  const todaysQuests = activeQuests.filter((q) => isScheduledOn(q.recurrence, today));
 
-  const overdueReminders = activeQuests.filter(
+  const overdueReminders = todaysQuests.filter(
     (q) =>
       q.reminderDate === todayKey &&
       q.reminderCount > (dismissedReminderCounts[q.id] ?? 0) &&
@@ -61,9 +63,9 @@ export function DashboardPage() {
 
   const coachMessage = pickCoachMessage({
     hasQuests: activeQuests.length > 0,
-    totalActive: activeQuests.length,
-    completedToday: activeQuests.filter((q) => q.lastCompletedDate === todayKey).length,
-    maxStreak: activeQuests.reduce((max, q) => Math.max(max, q.streakCount), 0),
+    totalActive: todaysQuests.length,
+    completedToday: todaysQuests.filter((q) => q.lastCompletedDate === todayKey).length,
+    maxStreak: todaysQuests.reduce((max, q) => Math.max(max, q.streakCount), 0),
     fatigue: character?.fatigue ?? 100,
     hour: new Date().getHours(),
   });
@@ -129,7 +131,7 @@ export function DashboardPage() {
       )}
 
       {DOMAINS.map((domain) => {
-        const domainQuests = activeQuests.filter((q) => q.domain === domain);
+        const domainQuests = todaysQuests.filter((q) => q.domain === domain);
         if (domainQuests.length === 0) return null;
 
         return (

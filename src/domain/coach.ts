@@ -1,6 +1,6 @@
 export interface CoachContext {
-  hasQuests: boolean;
-  totalActive: number;
+  hasQuests: boolean;   // true if the user has ever registered any active quest
+  totalActive: number;  // quests scheduled for *today* specifically (weekday-filtered)
   completedToday: number;
   maxStreak: number;
   fatigue: number;
@@ -20,7 +20,11 @@ export function pickCoachMessage(ctx: CoachContext): string {
     return '아직 등록된 루틴이 없어요! 퀘스트 탭에서 첫 루틴을 만들어볼까요?';
   }
 
-  if (ctx.totalActive > 0 && ctx.completedToday === ctx.totalActive) {
+  if (ctx.totalActive === 0) {
+    return '오늘은 예정된 루틴이 없어요! 푹 쉬는 날이에요 😊';
+  }
+
+  if (ctx.completedToday === ctx.totalActive) {
     return ctx.maxStreak >= STREAK_PRAISE_THRESHOLD
       ? '일주일 넘게 개근 중이에요! 완전 물올랐어요 🔥'
       : '오늘 할 일 다 끝냈어요! 최고예요 💪';

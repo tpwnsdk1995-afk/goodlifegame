@@ -42,4 +42,8 @@ export const questRepository = {
   async setActive(id: string, active: boolean): Promise<void> {
     await db.quests.update(id, { active });
   },
+
+  async remove(id: string): Promise<void> {
+    await db.quests.delete(id);
+  },
 };

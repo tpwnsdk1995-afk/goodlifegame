@@ -18,6 +18,10 @@ describe('pickCoachMessage', () => {
     expect(pickCoachMessage(ctx({ hasQuests: false }))).toMatch(/등록된 루틴이 없어요/);
   });
 
+  it('calls out a rest day when quests exist but none are scheduled today', () => {
+    expect(pickCoachMessage(ctx({ totalActive: 0, completedToday: 0 }))).toMatch(/쉬는 날/);
+  });
+
   it('celebrates when everything is done today', () => {
     expect(pickCoachMessage(ctx({ completedToday: 3, totalActive: 3 }))).toMatch(/최고예요/);
   });
