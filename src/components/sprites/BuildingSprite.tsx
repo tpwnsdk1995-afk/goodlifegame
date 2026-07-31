@@ -7,6 +7,48 @@ interface BuildingSpriteProps {
   size?: number;
 }
 
+/** A small badge icon identifying the facility type (gym/kitchen/study/library/office), drawn at a fixed spot on the building face across all tiers. */
+function DomainIcon({ domain, color }: { domain: Domain; color: string }) {
+  return (
+    <g>
+      <circle cx="38" cy="74" r="8" fill="#f8fafc" />
+      {domain === 'EXERCISE' && (
+        <g stroke={color} strokeWidth="2" strokeLinecap="round">
+          <circle cx="33" cy="74" r="2" fill={color} stroke="none" />
+          <circle cx="43" cy="74" r="2" fill={color} stroke="none" />
+          <line x1="35" y1="74" x2="41" y2="74" />
+        </g>
+      )}
+      {domain === 'DIET' && (
+        <g fill={color}>
+          <circle cx="38" cy="76" r="4.5" />
+          <rect x="37.2" y="68.5" width="1.6" height="3" />
+          <ellipse cx="40.5" cy="70" rx="2" ry="1" transform="rotate(30 40.5 70)" />
+        </g>
+      )}
+      {domain === 'STUDY' && (
+        <g fill={color}>
+          <polygon points="38,68.5 46,73 38,77.5 30,73" />
+          <line x1="38" y1="77.5" x2="38" y2="81" stroke={color} strokeWidth="1.4" />
+        </g>
+      )}
+      {domain === 'READING' && (
+        <g fill={color}>
+          <rect x="31" y="76.5" width="14" height="2.4" />
+          <rect x="32" y="73.5" width="12" height="2.4" />
+          <rect x="33" y="70.5" width="10" height="2.4" />
+        </g>
+      )}
+      {domain === 'WORK' && (
+        <g fill={color}>
+          <rect x="32" y="72" width="12" height="8" rx="1" />
+          <rect x="35.5" y="69.5" width="5" height="3" rx="1" fill="none" stroke={color} strokeWidth="1.4" />
+        </g>
+      )}
+    </g>
+  );
+}
+
 /** A small procedural building that visibly grows grander through 5 tiers as `level` rises. */
 export function BuildingSprite({ domain, level, size = 72 }: BuildingSpriteProps) {
   const tier = levelToTier(level);
@@ -68,6 +110,7 @@ export function BuildingSprite({ domain, level, size = 72 }: BuildingSpriteProps
             <rect x="42" y="76" width="16" height="14" fill={accent} />
           </>
         )}
+        <DomainIcon domain={domain} color={secondary} />
       </g>
     </svg>
   );

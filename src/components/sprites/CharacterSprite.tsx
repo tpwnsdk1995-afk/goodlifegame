@@ -10,31 +10,38 @@ const HAIR_COLOR = '#5b3a29';
 const HAIR_HIGHLIGHT = '#7a4f38';
 const SKIN = '#ffe0c2';
 const EYE = '#3b2a4a';
+const SNEAKER = '#f8fafc';
 
 /**
- * A cute chibi-style avatar (twintails, big eyes, blush) that gains a hair ribbon + wand,
- * then a cape, then a sparkling aura, then a tiara as the character's average level rises.
+ * A chibi gym-goer avatar (twintails, sportswear, sneakers) that gains a sweatband + dumbbell,
+ * then a hoodie tied at the waist, then an energy aura, then a gold medal as average level rises.
  */
 export function CharacterSprite({ averageLevel, size = 96, className = '' }: CharacterSpriteProps) {
   const tier = levelToTier(Math.max(1, Math.round(averageLevel)));
-  const dressColor = tier >= 3 ? '#facc15' : tier >= 1 ? '#f472b6' : '#fb7185';
-  const dressTrim = tier >= 3 ? '#fde68a' : '#fecdd3';
-  const auraColor = tier >= 3 ? '#fbbf24' : '#f9a8d4';
+  const topColor = tier >= 3 ? '#facc15' : '#f472b6';
+  const bottomColor = tier >= 3 ? '#4b5563' : '#334155';
+  const auraColor = tier >= 3 ? '#fbbf24' : '#38bdf8';
 
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" className={className}>
       {tier >= 2 && <circle cx="50" cy="56" r="36" fill={auraColor} opacity="0.18" className="sprite-glow" />}
       <g className="sprite-bob">
-        {/* cape, behind everything */}
-        {tier >= 2 && <polygon points="36,44 24,86 50,76" fill="#334155" opacity="0.9" />}
+        {/* hoodie tied at the waist, behind everything */}
+        {tier >= 2 && <polygon points="36,60 24,88 50,80" fill="#475569" opacity="0.95" />}
 
         {/* twintail hair (behind head, hangs beside body) */}
         <ellipse cx="27" cy="46" rx="8" ry="16" fill={HAIR_COLOR} />
         <ellipse cx="73" cy="46" rx="8" ry="16" fill={HAIR_COLOR} />
 
-        {/* dress */}
-        <polygon points="40,58 60,58 70,88 30,88" fill={dressColor} />
-        <polygon points="40,58 60,58 64,66 36,66" fill={dressTrim} />
+        {/* sneakers */}
+        <ellipse cx="42" cy="89" rx="6" ry="3" fill={SNEAKER} />
+        <ellipse cx="58" cy="89" rx="6" ry="3" fill={SNEAKER} />
+
+        {/* leggings/shorts */}
+        <rect x="38" y="70" width="24" height="20" rx="4" fill={bottomColor} />
+
+        {/* crop top */}
+        <rect x="38" y="58" width="24" height="14" rx="4" fill={topColor} />
 
         {/* neck */}
         <rect x="46" y="52" width="8" height="8" fill={SKIN} />
@@ -59,32 +66,29 @@ export function CharacterSprite({ averageLevel, size = 96, className = '' }: Cha
         {/* mouth */}
         <path d="M 47 47 Q 50 49 53 47" fill="none" stroke="#b45372" strokeWidth="1.3" strokeLinecap="round" />
 
-        {/* hair ribbon (tier 1+) */}
+        {/* sweatband (tier 1+) */}
         {tier >= 1 && (
           <>
-            <polygon points="20,36 27,40 20,44" fill={dressColor} />
-            <polygon points="34,36 27,40 34,44" fill={dressColor} />
-            <circle cx="27" cy="40" r="2.4" fill={dressTrim} />
+            <rect x="31" y="27" width="38" height="6" rx="3" fill={topColor} />
+            <circle cx="50" cy="30" r="1.6" fill="#fff" />
           </>
         )}
 
-        {/* wand (tier 1+) */}
+        {/* dumbbell (tier 1+) */}
         {tier >= 1 && (
-          <>
-            <rect x="70" y="58" width="3" height="24" fill="#e2e8f0" transform="rotate(18 70 58)" />
-            <polygon
-              points="68,52 71,58 74,52 71,46"
-              fill={tier >= 3 ? '#fde047' : '#93c5fd'}
-              transform="rotate(18 71 58)"
-            />
-          </>
+          <g transform="rotate(18 65 60)">
+            <rect x="60" y="58" width="14" height="4" fill="#94a3b8" />
+            <circle cx="60" cy="60" r="4" fill="#475569" />
+            <circle cx="74" cy="60" r="4" fill="#475569" />
+          </g>
         )}
 
-        {/* tiara (tier 4) */}
+        {/* gold medal (tier 4) */}
         {tier >= 4 && (
           <>
-            <polygon points="40,20 50,10 60,20" fill="#fde047" />
-            <circle cx="50" cy="13" r="2.4" fill="#f43f5e" />
+            <path d="M 44 52 L 50 66 L 56 52" fill="none" stroke="#ef4444" strokeWidth="3" />
+            <circle cx="50" cy="70" r="7" fill="#facc15" stroke="#eab308" strokeWidth="1.5" />
+            <path d="M 50 66 L 51.8 69.4 L 55.5 69.9 L 52.8 72.4 L 53.5 76 L 50 74.2 L 46.5 76 L 47.2 72.4 L 44.5 69.9 L 48.2 69.4 Z" fill="#fde68a" />
           </>
         )}
       </g>

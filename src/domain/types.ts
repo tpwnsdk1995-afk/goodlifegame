@@ -11,11 +11,11 @@ export const DOMAIN_LABEL: Record<Domain, string> = {
 };
 
 export const DOMAIN_BUILDING_LABEL: Record<Domain, string> = {
-  EXERCISE: '훈련소',
-  DIET: '주방',
-  STUDY: '공부방',
-  READING: '서재',
-  WORK: '사무실',
+  EXERCISE: '헬스장',
+  DIET: '식단관리실',
+  STUDY: '스터디룸',
+  READING: '도서관',
+  WORK: '오피스',
 };
 
 export interface DomainStat {
