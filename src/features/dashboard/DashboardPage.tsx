@@ -5,6 +5,7 @@ import { completeQuest, getAvailableHuntingAttempts } from '../../store/gameActi
 import { toDateKey } from '../../domain/streak';
 import { DOMAINS, DOMAIN_LABEL } from '../../domain/types';
 import { averageDomainLevel } from '../../domain/stats';
+import { pickCoachMessage } from '../../domain/coach';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { ProgressBar } from '../../components/ProgressBar';
@@ -58,6 +59,15 @@ export function DashboardPage() {
     });
   };
 
+  const coachMessage = pickCoachMessage({
+    hasQuests: activeQuests.length > 0,
+    totalActive: activeQuests.length,
+    completedToday: activeQuests.filter((q) => q.lastCompletedDate === todayKey).length,
+    maxStreak: activeQuests.reduce((max, q) => Math.max(max, q.streakCount), 0),
+    fatigue: character?.fatigue ?? 100,
+    hour: new Date().getHours(),
+  });
+
   return (
     <div className="space-y-4 relative">
       {celebration && (
@@ -92,6 +102,9 @@ export function DashboardPage() {
       )}
 
       <Card>
+        <div className="rounded-2xl rounded-bl-sm bg-slate-700/80 px-3 py-2 text-xs text-slate-100 mb-3">
+          {coachMessage}
+        </div>
         <div className="flex items-center gap-3">
           <CharacterSprite averageLevel={character ? averageDomainLevel(character) : 1} size={56} />
           <div className="flex-1">
