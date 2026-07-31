@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AppShell, type TabKey } from './app/layout/AppShell';
 import { initializeGame } from './store/gameActions';
+import { checkReminders } from './store/reminderActions';
 import { DashboardPage } from './features/dashboard/DashboardPage';
 import { QuestManagerPage } from './features/quests/QuestManagerPage';
 import { CharacterSheetPage } from './features/character/CharacterSheetPage';
@@ -20,7 +21,13 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
 
   useEffect(() => {
-    initializeGame().then(() => setReady(true));
+    initializeGame().then(() => {
+      setReady(true);
+      checkReminders();
+    });
+
+    const interval = setInterval(checkReminders, 60_000);
+    return () => clearInterval(interval);
   }, []);
 
   if (!ready) {

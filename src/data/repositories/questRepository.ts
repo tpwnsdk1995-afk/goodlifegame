@@ -6,6 +6,7 @@ export interface NewQuestInput {
   domain: Domain;
   title: string;
   recurrence: Recurrence;
+  reminderTime?: string | null;
 }
 
 export const questRepository = {
@@ -25,6 +26,10 @@ export const questRepository = {
       longestStreak: 0,
       lastCompletedDate: null,
       createdAt: new Date().toISOString(),
+      reminderTime: input.reminderTime ?? null,
+      reminderDate: null,
+      reminderCount: 0,
+      lastReminderAt: null,
     };
     await db.quests.add(quest);
     return quest;

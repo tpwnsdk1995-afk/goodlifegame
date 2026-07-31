@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCharacterStore } from '../../store/characterStore';
 import { useQuestStore } from '../../store/questStore';
+import { requestNotificationPermission } from '../../store/reminderActions';
 import { DOMAINS, DOMAIN_LABEL, type Domain } from '../../domain/types';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
@@ -13,12 +14,21 @@ export function QuestManagerPage() {
 
   const [title, setTitle] = useState('');
   const [domain, setDomain] = useState<Domain>('EXERCISE');
+  const [reminderTime, setReminderTime] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !character) return;
-    await addQuest({ characterId: character.id, domain, title: title.trim(), recurrence: 'DAILY' });
+    await addQuest({
+      characterId: character.id,
+      domain,
+      title: title.trim(),
+      recurrence: 'DAILY',
+      reminderTime: reminderTime || null,
+    });
+    if (reminderTime) requestNotificationPermission();
     setTitle('');
+    setReminderTime('');
   };
 
   return (
@@ -42,6 +52,15 @@ export function QuestManagerPage() {
             placeholder="예: 스쿼트 30개, 30분 독서"
             className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm placeholder:text-slate-500"
           />
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">리마인드 시각 (선택)</label>
+            <input
+              type="time"
+              value={reminderTime}
+              onChange={(e) => setReminderTime(e.target.value)}
+              className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm"
+            />
+          </div>
           <Button type="submit" className="w-full">
             매일 루틴으로 등록
           </Button>
@@ -57,6 +76,7 @@ export function QuestManagerPage() {
                 <p className="text-sm text-slate-100">{quest.title}</p>
                 <p className="text-xs text-slate-500">
                   {DOMAIN_LABEL[quest.domain]} · 최고 연속 {quest.longestStreak}일
+                  {quest.reminderTime && <> · ⏰ {quest.reminderTime}</>}
                 </p>
               </div>
               <Button

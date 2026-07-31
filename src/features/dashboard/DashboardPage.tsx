@@ -15,6 +15,7 @@ export function DashboardPage() {
   const quests = useQuestStore((s) => s.quests);
   const [attempts, setAttempts] = useState(0);
   const [celebration, setCelebration] = useState<{ id: number; text: string } | null>(null);
+  const [dismissedReminderCounts, setDismissedReminderCounts] = useState<Record<string, number>>({});
   const todayKey = toDateKey(new Date());
 
   const refreshAttempts = () => {
@@ -42,6 +43,21 @@ export function DashboardPage() {
 
   const activeQuests = quests.filter((q) => q.active);
 
+  const overdueReminders = activeQuests.filter(
+    (q) =>
+      q.reminderDate === todayKey &&
+      q.reminderCount > (dismissedReminderCounts[q.id] ?? 0) &&
+      q.lastCompletedDate !== todayKey,
+  );
+
+  const dismissReminders = () => {
+    setDismissedReminderCounts((prev) => {
+      const next = { ...prev };
+      for (const q of overdueReminders) next[q.id] = q.reminderCount;
+      return next;
+    });
+  };
+
   return (
     <div className="space-y-4 relative">
       {celebration && (
@@ -52,6 +68,27 @@ export function DashboardPage() {
         >
           {celebration.text}
         </div>
+      )}
+
+      {overdueReminders.length > 0 && (
+        <Card className="border-amber-500/60 bg-amber-500/10">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <p className="text-sm font-semibold text-amber-300">⏰ 아직 안 하셨어요!</p>
+              <ul className="mt-1 text-xs text-amber-200/90 space-y-0.5">
+                {overdueReminders.map((q) => (
+                  <li key={q.id}>{q.title}</li>
+                ))}
+              </ul>
+            </div>
+            <button
+              onClick={dismissReminders}
+              className="text-amber-300 text-xs px-2 py-1 rounded hover:bg-amber-500/20"
+            >
+              닫기
+            </button>
+          </div>
+        </Card>
       )}
 
       <Card>

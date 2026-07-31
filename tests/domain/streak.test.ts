@@ -14,6 +14,10 @@ function makeQuest(overrides: Partial<Quest> = {}): Quest {
     longestStreak: 0,
     lastCompletedDate: null,
     createdAt: new Date('2026-01-01').toISOString(),
+    reminderTime: null,
+    reminderDate: null,
+    reminderCount: 0,
+    lastReminderAt: null,
     ...overrides,
   };
 }

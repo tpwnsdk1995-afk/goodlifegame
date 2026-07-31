@@ -57,6 +57,10 @@ export interface Quest {
   longestStreak: number;
   lastCompletedDate: string | null; // YYYY-MM-DD
   createdAt: string;
+  reminderTime: string | null;   // "HH:mm", null이면 리마인드 없음
+  reminderDate: string | null;   // YYYY-MM-DD — reminderCount/lastReminderAt이 적용되는 날짜
+  reminderCount: number;         // reminderDate 기준 오늘 몇 번 알렸는지
+  lastReminderAt: string | null; // 마지막 알림을 보낸 ISO 타임스탬프
 }
 
 export interface CompletionLog {
