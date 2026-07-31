@@ -1,4 +1,4 @@
-import type { DomainStat } from './types';
+import { DOMAINS, type DomainStat, type Character } from './types';
 
 export const BASE_QUEST_XP = 10;
 export const MAX_STREAK_BONUS_DAYS = 10;
@@ -35,4 +35,10 @@ export function addXp(stat: DomainStat, amount: number): DomainStat {
   }
 
   return { level, xp };
+}
+
+/** Average domain level across all 5 stats — drives the character sprite's visual tier. */
+export function averageDomainLevel(character: Character): number {
+  const total = DOMAINS.reduce((sum, domain) => sum + character.stats[domain].level, 0);
+  return total / DOMAINS.length;
 }

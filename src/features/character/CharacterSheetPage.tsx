@@ -1,7 +1,9 @@
 import { useCharacterStore } from '../../store/characterStore';
 import { DOMAINS, DOMAIN_LABEL } from '../../domain/types';
+import { averageDomainLevel } from '../../domain/stats';
 import { Card } from '../../components/Card';
 import { StatBadge } from '../../components/StatBadge';
+import { CharacterSprite } from '../../components/sprites/CharacterSprite';
 
 export function CharacterSheetPage() {
   const character = useCharacterStore((s) => s.character);
@@ -11,8 +13,8 @@ export function CharacterSheetPage() {
     <div className="space-y-4">
       <Card>
         <div className="flex items-center gap-3">
-          <div className="w-14 h-14 rounded-full bg-amber-500/20 flex items-center justify-center text-2xl">
-            🧙
+          <div className="w-20 h-20 flex items-center justify-center">
+            <CharacterSprite averageLevel={averageDomainLevel(character)} size={80} />
           </div>
           <div>
             <p className="font-semibold text-slate-100">{character.name}</p>

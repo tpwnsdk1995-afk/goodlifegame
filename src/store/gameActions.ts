@@ -56,14 +56,19 @@ export async function initializeGame(): Promise<void> {
   await useVillageStore.getState().persist({ ...village, buildings: decayedBuildings });
 }
 
+export interface CompleteQuestResult {
+  statLeveledUp: boolean;
+  buildingLeveledUp: boolean;
+}
+
 /** Marks a quest complete for today: updates streak, grants XP to the character stat and matching building. */
-export async function completeQuest(questId: string): Promise<void> {
+export async function completeQuest(questId: string): Promise<CompleteQuestResult | undefined> {
   const quest = useQuestStore.getState().quests.find((q) => q.id === questId);
-  if (!quest) return;
+  if (!quest) return undefined;
 
   const today = new Date();
   const todayKey = toDateKey(today);
-  if (quest.lastCompletedDate === todayKey) return; // already completed today
+  if (quest.lastCompletedDate === todayKey) return undefined; // already completed today
 
   const streakResult = registerCompletion(quest, today);
   const updatedQuest: Quest = { ...quest, ...streakResult };
@@ -72,10 +77,13 @@ export async function completeQuest(questId: string): Promise<void> {
   await questRepository.save(updatedQuest); // replaceQuest above only updates in-memory state
 
   const xpGain = xpForCompletion(streakResult.streakCount);
+  let statLeveledUp = false;
+  let buildingLeveledUp = false;
 
   const character = useCharacterStore.getState().character;
   if (character) {
     const newStat = addXp(character.stats[quest.domain], xpGain);
+    statLeveledUp = newStat.level > character.stats[quest.domain].level;
     const newFatigue = recoverFatigueOnComplete(character.fatigue);
     await useCharacterStore.getState().persist({
       ...character,
@@ -86,11 +94,16 @@ export async function completeQuest(questId: string): Promise<void> {
 
   const village = useVillageStore.getState().village;
   if (village) {
-    const buildings = village.buildings.map((building) =>
-      building.domain === quest.domain ? { ...building, ...addXp(building, xpGain) } : building,
-    );
+    const buildings = village.buildings.map((building) => {
+      if (building.domain !== quest.domain) return building;
+      const upgraded = addXp(building, xpGain);
+      buildingLeveledUp = upgraded.level > building.level;
+      return { ...building, ...upgraded };
+    });
     await useVillageStore.getState().persist({ ...village, buildings });
   }
+
+  return { statLeveledUp, buildingLeveledUp };
 }
 
 export async function getAvailableHuntingAttempts(): Promise<number> {

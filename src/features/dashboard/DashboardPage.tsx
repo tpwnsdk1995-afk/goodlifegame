@@ -4,14 +4,17 @@ import { useQuestStore } from '../../store/questStore';
 import { completeQuest, getAvailableHuntingAttempts } from '../../store/gameActions';
 import { toDateKey } from '../../domain/streak';
 import { DOMAINS, DOMAIN_LABEL } from '../../domain/types';
+import { averageDomainLevel } from '../../domain/stats';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { ProgressBar } from '../../components/ProgressBar';
+import { CharacterSprite } from '../../components/sprites/CharacterSprite';
 
 export function DashboardPage() {
   const character = useCharacterStore((s) => s.character);
   const quests = useQuestStore((s) => s.quests);
   const [attempts, setAttempts] = useState(0);
+  const [celebration, setCelebration] = useState<{ id: number; text: string } | null>(null);
   const todayKey = toDateKey(new Date());
 
   const refreshAttempts = () => {
@@ -23,20 +26,45 @@ export function DashboardPage() {
   }, [quests]);
 
   const handleComplete = async (questId: string) => {
-    await completeQuest(questId);
+    const result = await completeQuest(questId);
     refreshAttempts();
+
+    if (result?.statLeveledUp || result?.buildingLeveledUp) {
+      const text =
+        result.statLeveledUp && result.buildingLeveledUp
+          ? '🎉 레벨업! 캐릭터와 세력이 함께 성장했어요!'
+          : result.statLeveledUp
+            ? '🎉 캐릭터 레벨업!'
+            : '🎉 시설 레벨업!';
+      setCelebration({ id: Date.now(), text });
+    }
   };
 
   const activeQuests = quests.filter((q) => q.active);
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-slate-300">피로도</span>
-          <span className="text-xs text-slate-400">{character?.fatigue ?? 0} / 100</span>
+    <div className="space-y-4 relative">
+      {celebration && (
+        <div
+          key={celebration.id}
+          onAnimationEnd={() => setCelebration(null)}
+          className="level-up-toast pointer-events-none absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full bg-amber-500 px-4 py-1.5 text-sm font-bold text-slate-900 shadow-lg"
+        >
+          {celebration.text}
         </div>
-        <ProgressBar value={character?.fatigue ?? 0} max={100} colorClass="bg-emerald-400" />
+      )}
+
+      <Card>
+        <div className="flex items-center gap-3">
+          <CharacterSprite averageLevel={character ? averageDomainLevel(character) : 1} size={56} />
+          <div className="flex-1">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-slate-300">피로도</span>
+              <span className="text-xs text-slate-400">{character?.fatigue ?? 0} / 100</span>
+            </div>
+            <ProgressBar value={character?.fatigue ?? 0} max={100} colorClass="bg-emerald-400" />
+          </div>
+        </div>
         <p className="mt-2 text-xs text-slate-500">
           오늘 사냥 가능 횟수: <span className="text-amber-400 font-semibold">{attempts}</span>
         </p>
